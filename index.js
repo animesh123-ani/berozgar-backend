@@ -11,10 +11,9 @@ const PORT = process.env.PORT || "3030";
 app.use(express.json());
 
 // Configure CORS to allow specific origins (e.g., http://localhost:3000)
-const allowedOrigins = ["https://berozzgar-app.vercel.app"];
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: "*",
   })
 );
 
