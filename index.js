@@ -9,7 +9,14 @@ const notesRouter = require("./routes/noteRoute");
 const PORT = process.env.PORT || "3030";
 
 app.use(express.json());
-app.use(cors());
+
+// Configure CORS to allow specific origins (e.g., http://localhost:3000)
+const allowedOrigins = ["https://berozzgar-app.vercel.app"];
+app.use(
+  cors({
+    origin: allowedOrigins,
+  })
+);
 
 app.use("/api/v1", Router);
 app.use("/api/v1", notesRouter);
