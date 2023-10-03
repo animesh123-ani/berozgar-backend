@@ -1,3 +1,4 @@
+// Import necessary modules and setup
 const express = require("express");
 const Router = express.Router();
 const User = require("../model/model");
@@ -8,11 +9,27 @@ dotenv.config();
 
 const secretKey = process.env.SECRET_KEY;
 
-Router.post("/register", async (req, res) => {
+// Helper function to generate JWT token
+function generateToken(user) {
+  return jwt.sign({ user }, secretKey);
+}
+
+// Middleware function for input validation
+function validateInput(req, res, next) {
+  const { userEmail, password } = req.body;
+
+  if (!userEmail || !password) {
+    return res.status(400).json({ message: "Invalid input data" });
+  }
+
+  next();
+}
+
+// Registration route
+Router.post("/register", validateInput, async (req, res) => {
   const { userEmail, password } = req.body;
 
   try {
-    // Check if the username already exists
     const existingUser = await User.findOne({ userEmail });
     if (existingUser) {
       return res.status(400).json({ message: "Username already exists" });
@@ -21,25 +38,20 @@ Router.post("/register", async (req, res) => {
     if (password.length < 6) {
       return res
         .status(400)
-        .json({ message: "Password should be atleast 6 letter long" });
+        .json({ message: "Password should be at least 6 characters long" });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user object (you can save it to a database here)
     const user = new User({
       userEmail,
       password: hashedPassword,
     });
 
-    // Save the user to the database
     await user.save();
 
-    // Generate a JWT token
-    const token = jwt.sign({ user }, secretKey);
+    const token = generateToken(user);
 
-    // Return the token to the client
     res.json({ token, user });
   } catch (error) {
     console.error("Failed to register user:", error);
@@ -47,28 +59,23 @@ Router.post("/register", async (req, res) => {
   }
 });
 
-// Login user
-Router.post("/login", async (req, res) => {
-  // Extract user data from the request body
+// Login route
+Router.post("/login", validateInput, async (req, res) => {
   const { userEmail, password } = req.body;
 
   try {
-    // Find the user in the database
     const user = await User.findOne({ userEmail });
     if (!user) {
       return res.status(401).json({ message: "Invalid username" });
     }
 
-    // Check if the password is correct
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    // Generate a JWT token
-    const token = jwt.sign({ user }, secretKey);
+    const token = generateToken(user);
 
-    // Return the token to the client
     res.json({ token, user });
   } catch (error) {
     console.error("Failed to login user:", error);
@@ -76,28 +83,7 @@ Router.post("/login", async (req, res) => {
   }
 });
 
-// Middleware function to authenticate token
-function authenticateToken(req, res, next) {
-  const token = req.query.api_key;
-
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Please Login Then You Will Be Able To View This" });
-  }
-
-  jwt.verify(token, secretKey, async (err, decoded) => {
-    if (err) {
-      return res
-        .status(403)
-        .json({ message: "Please Login Then You Will Be Able To View This" });
-    }
-    req.user = decoded.user;
-
-    next();
-  });
-}
-
+// Protected route
 Router.get("/user", authenticateToken, (req, res) => {
   res.json({
     message: "Protected route accessed successfully",
@@ -105,4 +91,23 @@ Router.get("/user", authenticateToken, (req, res) => {
   });
 });
 
+// Middleware function to authenticate token
+function authenticateToken(req, res, next) {
+  const token = req.query.api_key;
+
+  if (!token) {
+    return res.status(401).json({ message: "Please provide a valid token" });
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Token verification failed" });
+    }
+    req.user = decoded.user;
+
+    next();
+  });
+}
+
+// Export the router and authenticateToken middleware
 module.exports = { Router, authenticateToken };

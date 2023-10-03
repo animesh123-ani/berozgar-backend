@@ -3,41 +3,6 @@ const Router = express.Router();
 const Notes = require("../model/NoteModel");
 const { authenticateToken } = require("./route");
 
-Router.get("/notesofyear", authenticateToken, async (req, res) => {
-  try {
-    const year = Number(req.query.year);
-    let notes;
-    switch (year) {
-      case 1:
-        notes = await Notes.find({
-          sem: { $gt: 0, $lte: 2 },
-        });
-        break;
-      case 2:
-        notes = await Notes.find({
-          sem: { $gt: 2, $lte: 4 },
-        });
-        break;
-      case 3:
-        notes = await Notes.find({
-          sem: { $gt: 4, $lte: 6 },
-        });
-        break;
-      case 4:
-        notes = await Notes.find({
-          sem: { $gt: 6, $lte: 8 },
-        });
-        break;
-      default:
-        notes = await Notes.find({});
-    }
-    res.json(notes);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "SomeThing Went wrong" });
-  }
-});
-
 Router.get("/notesofsem", authenticateToken, async (req, res) => {
   try {
     let sem = req.query.sem;
@@ -72,19 +37,15 @@ Router.post("/upload-notes", authenticateToken, async (req, res) => {
     await newNote.save();
     res.json({ message: "Note Uploaded!!" });
   } catch (err) {
-    console.error("Error is here" + error);
-    res.status(500).json({ message: "SomeThing Went Wrong!!" });
+    console.error("Error is here" + err);
+    res.status(500).json({ message: "Something Went Wrong!!" });
   }
 });
 
 Router.get("/subject", async (req, res) => {
   try {
     const { code, sem } = req.query;
-    let notes = await Notes.find({ sem }).select({
-      chapterName: 1,
-      subjectCode: 1,
-      _id: 1,
-    });
+    let notes = await Notes.find({ sem });
     let subjects = notes.filter(
       (obj) => convertToCamelCase(obj.subjectCode) === convertToCamelCase(code)
     );
