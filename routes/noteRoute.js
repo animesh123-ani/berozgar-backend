@@ -10,7 +10,7 @@ Router.get("/notesofsem", authenticateToken, async (req, res) => {
     res.json(notes);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "SomeThing Went wrong" });
+    res.status(500).json({ message: "My Server is very Bad You Know But It Will Work Again Soon So Try Again Now" });
   }
 });
 
@@ -35,10 +35,10 @@ Router.post("/upload-notes", authenticateToken, async (req, res) => {
       subjectType,
     });
     await newNote.save();
-    res.json({ message: "Note Uploaded!!" });
+    res.json({ message: `Thank You ${uploadedBy} your Contribution means a lot to us!!` });
   } catch (err) {
     console.error("Error is here" + err);
-    res.status(500).json({ message: "Something Went Wrong!!" });
+    res.status(500).json({ message: "My Server is very Bad You Know But It Will Work Again Soon So Try Again Now" });
   }
 });
 
@@ -52,7 +52,7 @@ Router.get("/subject", async (req, res) => {
     res.json(subjects);
   } catch (err) {
     console.error("Error is here" + err);
-    res.status(500).json({ message: "SomeThing Went Wrong!!" });
+    res.status(500).json({ message: "My Server is very Bad You Know But It Will Work Again Soon So Try Again Now" });
   }
 });
 
