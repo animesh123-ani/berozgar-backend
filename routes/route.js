@@ -27,7 +27,7 @@ function validateInput(req, res, next) {
 
 // Registration route
 Router.post("/register", validateInput, async (req, res) => {
-  const { userEmail, password } = req.body;
+  const { userEmail, password, ProfileImage } = req.body;
 
   try {
     const existingUser = await User.findOne({ userEmail });
@@ -45,17 +45,30 @@ Router.post("/register", validateInput, async (req, res) => {
 
     const user = new User({
       userEmail,
+      profileImage: ProfileImage,
       password: hashedPassword,
     });
 
     await user.save();
 
-    const token = generateToken(user);
+    const privateUserData = {
+      profileImage: user.profileImage,
+      role: user.role,
+      userEmail: user.userEmail,
+      _id: user._id,
+    };
 
-    res.json({ token, user });
+    const token = generateToken(privateUserData);
+
+    res.json({
+      token,
+      user: privateUserData,
+    });
   } catch (error) {
     console.error("Failed to register user:", error);
-    res.status(500).json({ message: "SomeThing Went Wrong In my Server Pls Try Again Later 😕" });
+    res.status(500).json({
+      message: "SomeThing Went Wrong In my Server Pls Try Again Later 😕",
+    });
   }
 });
 
@@ -70,16 +83,41 @@ Router.post("/login", validateInput, async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isEmailisPassword = await bcrypt.compare(userEmail, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Wrong UserName Of Password credentials" });
+      if (userEmail == password) {
+        return res
+          .status(401)
+          .json({ message: "You Created Account Through Email And Password" });
+      } else if (!isEmailisPassword) {
+        return res
+          .status(401)
+          .json({ message: "Wrong UserName Of Password credentials" });
+      } else {
+        return res
+          .status(401)
+          .json({ message: "You Created Account Through Login With google" });
+      }
     }
 
-    const token = generateToken(user);
+    const privateUserData = {
+      profileImage: user.profileImage,
+      role: user.role,
+      userEmail: user.userEmail,
+      _id: user._id,
+    };
 
-    res.json({ token, user });
+    const token = generateToken(privateUserData);
+
+    res.json({
+      token,
+      user: privateUserData,
+    });
   } catch (error) {
     console.error("Failed to login user:", error);
-    res.status(500).json({ message: "SomeThing Went Wrong In my Server Pls Try Again Later 😕" });
+    res.status(500).json({
+      message: "SomeThing Went Wrong In my Server Pls Try Again Later 😕",
+    });
   }
 });
 
