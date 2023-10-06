@@ -32,7 +32,7 @@ Router.post("/register", validateInput, async (req, res) => {
   try {
     const existingUser = await User.findOne({ userEmail });
     if (existingUser) {
-      return res.status(400).json({ message: "Username already exists" });
+      return res.status(400).json({ message: "Email already Is In Use!!" });
     }
 
     if (password.length < 6) {
@@ -55,7 +55,7 @@ Router.post("/register", validateInput, async (req, res) => {
     res.json({ token, user });
   } catch (error) {
     console.error("Failed to register user:", error);
-    res.status(500).json({ message: "Failed to register user" });
+    res.status(500).json({ message: "SomeThing Went Wrong In my Server Pls Try Again Later 😕" });
   }
 });
 
@@ -66,12 +66,12 @@ Router.post("/login", validateInput, async (req, res) => {
   try {
     const user = await User.findOne({ userEmail });
     if (!user) {
-      return res.status(401).json({ message: "Invalid username" });
+      return res.status(401).json({ message: "You Are Not Registered" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
+      return res.status(401).json({ message: "Wrong UserName Of Password credentials" });
     }
 
     const token = generateToken(user);
@@ -79,14 +79,14 @@ Router.post("/login", validateInput, async (req, res) => {
     res.json({ token, user });
   } catch (error) {
     console.error("Failed to login user:", error);
-    res.status(500).json({ message: "Failed to login user" });
+    res.status(500).json({ message: "SomeThing Went Wrong In my Server Pls Try Again Later 😕" });
   }
 });
 
 // Protected route
 Router.get("/user", authenticateToken, (req, res) => {
   res.json({
-    message: "Protected route accessed successfully",
+    message: "You Are Authenticate",
     user: req.user,
   });
 });
@@ -96,12 +96,12 @@ function authenticateToken(req, res, next) {
   const token = req.query.api_key;
 
   if (!token) {
-    return res.status(401).json({ message: "Please provide a valid token" });
+    return res.status(401).json({ message: "Autherization Failed" });
   }
 
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: "Token verification failed" });
+      return res.status(403).json({ message: "Autherization Failed" });
     }
     req.user = decoded.user;
 
