@@ -147,5 +147,20 @@ function authenticateToken(req, res, next) {
   });
 }
 
+Router.get("/users", authenticateToken, async (req, res) => {
+  const { role } = req.user;
+  if (role == "ADMIN") {
+    let users = await User.find({}).select({
+      userEmail: 1,
+      profileImage: 1,
+      role: 1,
+      _id: 1,
+    });
+    res.json(users);
+  } else {
+    res.status(403).json({ message: "you Don't Have Access To This" });
+  }
+});
+
 // Export the router and authenticateToken middleware
 module.exports = { Router, authenticateToken };
