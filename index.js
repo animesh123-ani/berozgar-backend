@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const app = express();
 const { Router } = require("./routes/route");
+const hodRouter = require("./routes/hodRoute");
 const notesRouter = require("./routes/noteRoute");
 
 const PORT = process.env.PORT || "3030";
@@ -19,6 +20,7 @@ app.use(
 
 app.use("/api/v1", Router);
 app.use("/api/v1", notesRouter);
+app.use("/api/v1", hodRouter);
 
 // Start the server
 app.listen(PORT, () => {
