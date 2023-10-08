@@ -2,40 +2,54 @@ const express = require("express");
 const Router = express.Router();
 const HodMessage = require("../model/hoding");
 
-//for Reading messages
+// Error handling middleware
+function errorHandler(err, res) {
+  console.error(err);
+  res.status(500).json({ message: "Something went wrong in the server" });
+}
+
+// For reading messages
 Router.get("/hodmessages", async (req, res) => {
   try {
-    let messsages = await HodMessage.find({});
-    res.json(messsages);
+    const messages = await HodMessage.find({});
+    res.json(messages);
   } catch (err) {
-    res.status(500).json({ message: "SomeThing Went Wrong in My Server" });
+    errorHandler(err, res);
   }
 });
 
-//for creating messages
+// For creating messages
 Router.post("/createHodMessages", async (req, res) => {
   try {
-    let { message } = req.body;
+    const { message } = req.body;
+
+    // Validate message here if needed
+
     const newMessage = new HodMessage({
       message,
     });
+
     await newMessage.save();
     res.json({ message: "Notification Added" });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "SomeThing Went Wrong In My Server" });
+    errorHandler(err, res);
   }
 });
 
-//for deleting messages
-Router.delete("/deleteHodMessage", async (req, res) => {
+// For deleting messages
+Router.get("/deleteHodMessage", async (req, res) => {
   try {
-    let { documentId } = req.query;
-    await HodMessage.findByIdAndRemove(documentId);
-    res.json({ message: "message deleted!!" });
+    const { documentId } = req.query;
+
+    // Validate documentId here if needed
+
+    const deletedMessage = await HodMessage.findByIdAndDelete(documentId);
+    if (!deletedMessage) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+    res.json({ message: "Message deleted!!" });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "something went wrong in my server" });
+    errorHandler(err, res);
   }
 });
 
