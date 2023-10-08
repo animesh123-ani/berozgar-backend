@@ -7,7 +7,7 @@ const hodSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 21600,
+    expires: 60,
   },
 });
 
