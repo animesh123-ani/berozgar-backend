@@ -10,6 +10,6 @@ const hodSchema = new mongoose.Schema({
   },
 });
 
-const HodMessage = mongoose.model("hod", hodSchema);
+const HodMessage = mongoose.model("message", hodSchema);
 
 module.exports = HodMessage;
