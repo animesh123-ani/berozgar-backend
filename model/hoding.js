@@ -6,7 +6,7 @@ const hodSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: new Date(),
     expires: 86400, // 24 hours in seconds
   },
 });

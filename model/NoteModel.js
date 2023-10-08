@@ -10,7 +10,7 @@ const NotesSchema = new mongoose.Schema({
   subjectType: String,
   uploadedAt: {
     type: Date,
-    default: Date.now,
+    default: new Date(),
   },
   likes: {
     type: Array,
