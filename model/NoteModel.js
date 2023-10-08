@@ -12,6 +12,18 @@ const NotesSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  likes: {
+    type: Array,
+    default: [],
+  },
+  comments: {
+    type: Array,
+    default: [],
+  },
+  attachment: {
+    type: Array,
+    default: [],
+  },
 });
 const Notes = mongoose.model("Note", NotesSchema);
 
