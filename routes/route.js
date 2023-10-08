@@ -162,5 +162,49 @@ Router.get("/users", authenticateToken, async (req, res) => {
   }
 });
 
+Router.put("/changeRole", authenticateToken, async (req, res) => {
+  try {
+    const { role } = req.user;
+    const { id } = req.query;
+
+    // Check if the user has admin role
+    if (role !== "ADMIN") {
+      return res.status(403).json({ message: "You don't have access to this" });
+    }
+
+    // Check if the provided user ID exists
+    const user = await User.findOne({ _id: id });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Define an array of root admin emails
+    const rootAdminEmails = [
+      "animeshkum723126@gmail.com",
+      "souravhit2226@gmail.com",
+      "saikatmalik234@gmail.com",
+    ];
+
+    // Check if the user's email is a root admin email
+    if (rootAdminEmails.includes(user.userEmail)) {
+      return res
+        .status(403)
+        .json({ message: "You can't modify the role of a root admin" });
+    }
+
+    // Toggle the user's role
+    user.role = user.role === "ADMIN" ? "USER" : "ADMIN";
+
+    // Save the updated user
+    await user.save();
+
+    res.json({ message: "Access Modified" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong in our server" });
+  }
+});
+
 // Export the router and authenticateToken middleware
 module.exports = { Router, authenticateToken };
