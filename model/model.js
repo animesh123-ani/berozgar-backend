@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "USER",
   },
+  userName: {
+    type: String,
+    default: null,
+  },
   Year: {
     type: Number,
     default: null,
