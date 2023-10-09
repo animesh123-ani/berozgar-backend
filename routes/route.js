@@ -52,9 +52,6 @@ Router.post("/register", validateInput, async (req, res) => {
     await user.save();
 
     const privateUserData = {
-      profileImage: user.profileImage,
-      role: user.role,
-      userEmail: user.userEmail,
       _id: user._id,
     };
 
@@ -62,7 +59,7 @@ Router.post("/register", validateInput, async (req, res) => {
 
     res.json({
       token,
-      user: privateUserData,
+      user,
     });
   } catch (error) {
     console.error("Failed to register user:", error);
@@ -101,9 +98,6 @@ Router.post("/login", validateInput, async (req, res) => {
     }
 
     const privateUserData = {
-      profileImage: user.profileImage,
-      role: user.role,
-      userEmail: user.userEmail,
       _id: user._id,
     };
 
@@ -111,7 +105,7 @@ Router.post("/login", validateInput, async (req, res) => {
 
     res.json({
       token,
-      user: privateUserData,
+      user,
     });
   } catch (error) {
     console.error("Failed to login user:", error);
@@ -124,24 +118,31 @@ Router.post("/login", validateInput, async (req, res) => {
 // Protected route
 Router.get("/user", authenticateToken, (req, res) => {
   res.json({
-    message: "You Are Authenticate",
+    message: "You Are Authenticated",
     user: req.user,
   });
 });
 
 // Middleware function to authenticate token
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
   const token = req.query.api_key;
 
   if (!token) {
     return res.status(401).json({ message: "Autherization Failed" });
   }
 
-  jwt.verify(token, secretKey, (err, decoded) => {
+  jwt.verify(token, secretKey, async (err, decoded) => {
     if (err) {
       return res.status(403).json({ message: "Autherization Failed" });
     }
-    req.user = decoded.user;
+    let user = await User.findOne({ _id: decoded.user._id }).select({
+      password: 0,
+    });
+    if (!user) {
+      return res.status(403).json({ message: "Autherization Failed" });
+    }
+
+    req.user = user;
 
     next();
   });
