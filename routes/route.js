@@ -164,7 +164,7 @@ Router.get("/users", authenticateToken, async (req, res) => {
 
 Router.put("/changeRole", authenticateToken, async (req, res) => {
   try {
-    const { role } = req.user;
+    const { role, userEmail } = req.user;
     const { id } = req.query;
 
     // Check if the user has admin role
@@ -185,6 +185,12 @@ Router.put("/changeRole", authenticateToken, async (req, res) => {
       "souravhit2226@gmail.com",
       "saikatmalik234@gmail.com",
     ];
+
+    if (user.userEmail == userEmail) {
+      return res
+        .status(401)
+        .json({ message: "you can't modify your own Admin Access" });
+    }
 
     // Check if the user's email is a root admin email
     if (rootAdminEmails.includes(user.userEmail)) {
