@@ -156,7 +156,7 @@ Router.get("/users", authenticateToken, async (req, res) => {
       role: 1,
       _id: 1,
     });
-    res.json(users);
+    res.json(users.reverse());
   } else {
     res.status(403).json({ message: "you Don't Have Access To This" });
   }
