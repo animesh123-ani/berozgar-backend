@@ -61,7 +61,7 @@ Router.get("/subject", async (req, res) => {
     let subjects = notes.filter(
       (obj) => convertToCamelCase(obj.subjectCode) === convertToCamelCase(code)
     );
-    res.json(subjects);
+    res.json(subjects.reverse());
   } catch (err) {
     console.error("Error is here" + err);
     res.status(500).json({
