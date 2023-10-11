@@ -57,11 +57,13 @@ Router.post("/upload-notes", authenticateToken, async (req, res) => {
 Router.get("/subject", async (req, res) => {
   try {
     const { code, sem } = req.query;
-    let notes = await Notes.find({ sem });
+    let notes = await Notes.find({ sem }).sort({
+      _id: -1,
+    });
     let subjects = notes.filter(
       (obj) => convertToCamelCase(obj.subjectCode) === convertToCamelCase(code)
     );
-    res.json(subjects.reverse());
+    res.json(subjects);
   } catch (err) {
     console.error("Error is here" + err);
     res.status(500).json({
