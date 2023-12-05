@@ -18,6 +18,13 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  res.setHeader[
+    "Access-Control-Allow-Origin', 'https://berozgar-next.vercel.app"
+  ];
+  next();
+});
+
 app.use("/api/v1", Router);
 app.use("/api/v1", notesRouter);
 app.use("/api/v1", hodRouter);
