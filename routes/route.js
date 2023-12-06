@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
 dotenv.config();
+const objectId = require("mongoose").Types.ObjectId;
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -135,7 +136,7 @@ async function authenticateToken(req, res, next) {
     if (err) {
       return res.status(403).json({ message: "Autherization Failed" });
     }
-    let user = await User.findOne({ _id: decoded.user._id }).select({
+    let user = await User.findById(new objectId(decoded.user._id)).select({
       password: 0,
     });
     if (!user) {
